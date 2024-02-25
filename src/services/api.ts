@@ -21,7 +21,19 @@ const post = async (url: string) => {
     return data
 }
 
+const put = async (url: string) => {
+    const { data } = await axios.put(url)
+    return data
+}
+
+const del = async (url: string) => {
+    const { data } = await axios.delete(url)
+    return data
+}
+
 export default {
     get,
-    post
+    post,
+    put,
+    del
 }
