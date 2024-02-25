@@ -1,39 +1,54 @@
-import axios from 'axios'
+import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError, AxiosResponse } from "axios";
 
-axios.defaults.baseURL = import.meta.env.VITE_API_URL
+const baseURL = import.meta.env.VITE_API_URL
 
-console.log('BaseURL: ', axios.defaults.baseURL);
+const axiosClient = (token: string | null = null): AxiosInstance => {
+  const headers = token
+    ? {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      }
+    : {
+        "Content-Type": "application/json",
+      };
 
-type ApiResponseType<T> = {
-    data: T
-    message: string
-    statusCode: number
-    success: boolean
-}
+  const client = axios.create({
+    baseURL,
+    headers,
+    timeout: 60000,
+    withCredentials: false,
+  });
 
-const get = async <T extends ApiResponseType<T>>(url: string) => {
-    const { data } = await axios.get(url)
-    return data
-}
+  client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+    const token = localStorage.getItem("ACCESS_TOKEN");
+    
+    config.headers = config.headers || {};
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
 
-const post = async (url: string) => {
-    const { data } = await axios.post(url)
-    return data
-}
+  client.interceptors.response.use(
+    (response: AxiosResponse) => {
+      return response;
+    },
+    (error: AxiosError) => {
+      try {
+        const { response } = error;
+        if (response?.status === 401) {
+          localStorage.removeItem("ACCESS_TOKEN");
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      throw error;
+    }
+  );
 
-const put = async (url: string) => {
-    const { data } = await axios.put(url)
-    return data
-}
+  return client;
+};
 
-const del = async (url: string) => {
-    const { data } = await axios.delete(url)
-    return data
-}
-
-export default {
-    get,
-    post,
-    put,
-    del
-}
+const api = axiosClient()
+export {isAxiosError} from 'axios';
+export default api;

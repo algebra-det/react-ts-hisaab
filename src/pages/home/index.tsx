@@ -7,8 +7,10 @@ function Home() {
 
   useEffect(() => {
     const fetchHomeMesssage = async () => {
-      const res = await api.get('/')
-      setMessage(res.message)
+      const {data} = await api.get('/')
+      console.log('data: ', data);
+      
+      setMessage(data.message)
     }
     fetchHomeMesssage()
   }, [])

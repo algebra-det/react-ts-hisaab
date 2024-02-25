@@ -15,6 +15,7 @@ import * as z from 'zod'
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import Loading from '@/components/custom/Loader'
+import api, {isAxiosError} from '@/services/api'
 
 const formSchema = z
   .object({
@@ -51,34 +52,24 @@ function SignUp() {
     console.log('props are : ', values)
     try {
       setLoading(true)
-      const response = await fetch(
-        `${import.meta.env.NEXT_PUBLIC_API_URL}/auth/signup`,
-        {
-          headers: {
-            'content-type': 'application/json'
-          },
-          method: 'POST',
-          body: JSON.stringify(values)
-        }
-      )
-      const signUpResponse = await response.json()
-      if (response.ok) {
-        router('/login')
-      } else {
-        if (response.status === 400)
-          form.setError(signUpResponse.fieldName, {
-            type: response.status.toString(),
-            message: signUpResponse.message
-          })
-        else
-          form.setError('root.serverError', {
-            type: response.status.toString(),
-            message: signUpResponse.message
-          })
-      }
-      console.log('Response object: ', response.status, signUpResponse)
+      const response = await api.post(`/auth/signup`, values)
+      router('/login')
+      console.log('Response object: ', response.status, response)
     } catch (error) {
       console.log('Error while loggin in: ', error)
+      if(!isAxiosError(error)) return;
+      if (!error?.response?.data?.statusCode) return
+      if (error.response.data.statusCode === 400)
+        form.setError(error.response.data.fieldName, {
+          type: error.response.data.statusCode.toString(),
+          message: error.response.data.message
+        })
+      else
+        form.setError('root.serverError', {
+          type: error.response.data.statusCode.toString(),
+          message: error.response.data.message
+        })
+      console.log('Error while loggin in: ', error.message)
     } finally {
       setLoading(false)
     }

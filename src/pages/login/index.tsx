@@ -17,6 +17,7 @@ import {Link, useNavigate} from 'react-router-dom'
 import { userContext } from '@/contexts/userContext'
 import { useContext, useState } from 'react'
 import Loading from '@/components/custom/Loader'
+import api, {isAxiosError} from '@/services/api'
 
 const formSchema = z.object({
   email: z.string().min(1, 'Email is required.').email('Invalid Email'),
@@ -38,35 +39,31 @@ function Login() {
     }
   })
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log('props are : ', values)
     try {
       setLoading(true)
-      const response = await fetch(
-        `${import.meta.env.NEXT_PUBLIC_API_URL}/auth/login`,
-        {
-          headers: {
-            'content-type': 'application/json'
-          },
-          method: 'POST',
-          body: JSON.stringify(values)
-        }
-      )
-      const loginResponse = await response.json()
-      if (response.ok) {
-        console.log('Response object: ', response.status, loginResponse)
+      const response = await api.post( `/auth/login`, values)
+        console.log('Response object: ', response.status, response)
         // Set Cookie or something
-        setUser(loginResponse.data)
-        if (loginResponse.data.role === 'client') router('/transactions')
+        setUser(response.data)
+        if (response.data.role === 'client') router('/transactions')
         else router('/admin/users')
-      } else {
-        form.setError('root.serverError', {
-          type: response.status.toString(),
-          message: loginResponse.message
-        })
-      }
-      console.log('Response object: ', response.status, loginResponse)
+      console.log('Response object: ', response.status, response)
     } catch (error) {
       console.log('Error while loggin in: ', error)
+      if(!isAxiosError(error)) return;
+      console.log('Data is: ', error.response?.data)
+      if (!error.response?.data.statusCode) return
+      if (error.response.data.statusCode === 400)
+        form.setError(error.response.data.fieldName, {
+          type: error.response.data.statusCode.toString(),
+          message: error.response.data.message
+        })
+      else
+        form.setError('root.serverError', {
+          type: error.response.data.statusCode.toString(),
+          message: error.response.data.message
+        })
+      console.log('Error while loggin in: ', error.message)
     } finally {
       setLoading(false)
     }

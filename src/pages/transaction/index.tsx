@@ -11,6 +11,7 @@ import TransactionTable from './TransactionTable'
 import Loading from '@/components/custom/Loader'
 import DeleteDialog from '@/components/common/DeleteDialog'
 import { useNavigate } from 'react-router-dom'
+import api from '@/services/api'
 
 export default function MainTransaction() {
   const limit = 10
@@ -59,12 +60,10 @@ export default function MainTransaction() {
       setFetching(true)
       if (page) setOffset(offset + limit)
       else setOffset(0)
-      const response = await fetch(
-        `${
-          import.meta.env.NEXT_PUBLIC_API_URL
-        }/transactions?dateRange=${duration}&workingDate=${date}&limit=${limit}&offset=${
+      const response = await api.get(
+        `/transactions?dateRange=${duration}&workingDate=${date}&limit=${limit}&offset=${
           page ? offset + limit : offset
-        }`,
+        }`
       )
       if (response.ok) {
         const data = await response.json()
@@ -93,7 +92,7 @@ export default function MainTransaction() {
       setFetching(true)
 
       await fetch(
-        `${import.meta.env.NEXT_PUBLIC_API_URL}/transactions/${edit.id}`,
+        `${import.meta.env.NEXT_PUBLIC_API_URL}/transactions/${edit.id}`
       )
       removeTransaction(edit)
       setOpenDelete(false)
