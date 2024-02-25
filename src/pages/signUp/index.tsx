@@ -6,6 +6,7 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
+import { useToast } from "@/components/ui/use-toast"
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
@@ -36,6 +37,7 @@ const formSchema = z
   })
 
 function SignUp() {
+  const { toast } = useToast()
   const router = useNavigate()
   const [loading, setLoading] = useState(false)
   const form = useForm<z.infer<typeof formSchema>>({
@@ -53,6 +55,7 @@ function SignUp() {
     try {
       setLoading(true)
       const response = await api.post(`/auth/signup`, values)
+      toast({ title: "Sign Up Success" })
       router('/login')
       console.log('Response object: ', response.status, response)
     } catch (error) {

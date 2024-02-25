@@ -6,7 +6,7 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
-
+import { useToast } from "@/components/ui/use-toast"
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
@@ -28,6 +28,7 @@ const formSchema = z.object({
 })
 
 function Login() {
+  const { toast } = useToast()
   const { setUser } = useContext(userContext)
   const [loading, setLoading] = useState(false)
   const router = useNavigate()
@@ -44,6 +45,7 @@ function Login() {
       const response = await api.post( `/auth/login`, values)
         console.log('Response object: ', response.status, response)
         // Set Cookie or something
+        toast({ title: "Logged In Success" })
         setUser(response.data)
         if (response.data.role === 'client') router('/transactions')
         else router('/admin/users')
