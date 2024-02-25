@@ -13,6 +13,7 @@ import { dateFormatAPI } from '@/config/format'
 import ProductTable from './ProductTable'
 import Loading from '@/components/custom/Loader'
 import { useNavigate } from 'react-router-dom'
+import api, { isAxiosError } from '@/services/api'
 
 export default function MainProduct() {
   const limit = 10
@@ -99,31 +100,24 @@ export default function MainProduct() {
       setFetching(true)
       if (page) setOffset(offset + limit)
       setOffset(0)
-      const response = await fetch(
-        `${
-          import.meta.env.NEXT_PUBLIC_API_URL
-        }/products?dateRange=${duration}&workingDate=${date}&limit=${limit}&offset=${
+      const { data } = await api(
+        `/products?dateRange=${duration}&workingDate=${date}&limit=${limit}&offset=${
           page ? offset + limit : offset
-        }`,
+        }`
       )
-      console.log('response: ', response)
-      if (response.ok) {
-        const data = await response.json()
-        console.log('products are: ', data)
-        if (!page) setProductData(data)
-        else {
-          setProductData({
-            ...productData,
-            data: [...productData.data, ...data.data]
-          })
-        }
-        setFetching(false)
-      } else if (response.status === 401) {
-        router('/login')
-      } else {
-        setError('Error occured while fetching')
+      console.log('products are: ', data)
+      if (!page) setProductData(data)
+      else {
+        setProductData({
+          ...productData,
+          data: [...productData.data, ...data.data]
+        })
       }
+      setFetching(false)
     } catch (error) {
+      if (isAxiosError(error) && error?.response?.status === 401)
+        router('/login')
+      setError('Error occured while fetching')
       console.log('Error Occured')
     } finally {
       setFetching(false)
@@ -142,7 +136,9 @@ export default function MainProduct() {
       }
       setFetching(true)
       const response = await fetch(
-        `${import.meta.env.NEXT_PUBLIC_API_URL}/products/search?searchText=${searchkeyword}&dateRange=${duration}&workingDate=${date}`,
+        `${
+          import.meta.env.NEXT_PUBLIC_API_URL
+        }/products/search?searchText=${searchkeyword}&dateRange=${duration}&workingDate=${date}`
       )
       console.log('response: ', response)
       if (response.ok) {

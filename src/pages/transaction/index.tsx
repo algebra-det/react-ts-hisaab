@@ -11,7 +11,7 @@ import TransactionTable from './TransactionTable'
 import Loading from '@/components/custom/Loader'
 import DeleteDialog from '@/components/common/DeleteDialog'
 import { useNavigate } from 'react-router-dom'
-import api from '@/services/api'
+import api, { isAxiosError } from '@/services/api'
 
 export default function MainTransaction() {
   const limit = 10
@@ -60,28 +60,24 @@ export default function MainTransaction() {
       setFetching(true)
       if (page) setOffset(offset + limit)
       else setOffset(0)
-      const response = await api.get(
+      const { data } = await api.get(
         `/transactions?dateRange=${duration}&workingDate=${date}&limit=${limit}&offset=${
           page ? offset + limit : offset
         }`
       )
-      if (response.ok) {
-        const data = await response.json()
-        if (!page) setTransactionData(data)
-        else {
-          setTransactionData({
-            ...transactionData,
-            data: [...transactionData.data, ...data.data]
-          })
-        }
-        setFetching(false)
-      } else if (response.status === 401) {
-        router('/login')
-      } else {
-        setError('Error occured while fetching')
+      if (!page) setTransactionData(data)
+      else {
+        setTransactionData({
+          ...transactionData,
+          data: [...transactionData.data, ...data.data]
+        })
       }
+      setFetching(false)
+      setError('Error occured while fetching')
     } catch (error) {
-      console.log('Error Occured')
+      if (isAxiosError(error) && error?.response?.status === 401)
+        router('/login')
+      console.log('Error Occured', error)
     } finally {
       setFetching(false)
     }
