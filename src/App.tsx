@@ -3,13 +3,16 @@ import { Suspense } from 'react'
 import { ThemeProvider } from '@/providers/themeProvider'
 import Loader from '@/components/custom/Loader'
 import { Toaster } from '@/components/ui/toaster'
+import UserContext  from '@/contexts/userContext'
 
 function App() {
   return (
     <Suspense fallback={<Loader />}>
       <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
-        <Toaster />
-        <Router />
+        <UserContext>
+          <Toaster />
+          <Router />
+        </UserContext>
       </ThemeProvider>
     </Suspense>
   )

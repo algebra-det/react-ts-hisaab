@@ -4,8 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import Container from '../components/custom/Container'
 import { IndianRupee, Menu } from 'lucide-react'
 import ProfileButton from '@/components/custom/ProfileButton'
-import { useState } from 'react'
-import UserContext from '@/contexts/userContext'
+import {  useState } from 'react'
 import ThemeToggle from './themeToggle'
 
 const routes = [
@@ -23,7 +22,7 @@ function Header({ children }: { children: React.ReactNode }) {
   const [openSheet, setOpenSheet] = useState(false)
 
   return (
-    <UserContext>
+    <>
       <header className='sm:flex sm:justify-between py-3 px-4 border-b'>
         <Container>
           <div className='relative px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between w-full'>
@@ -73,7 +72,7 @@ function Header({ children }: { children: React.ReactNode }) {
         </Container>
       </header>
       <Container>{children}</Container>
-    </UserContext>
+      </>
   )
 }
 

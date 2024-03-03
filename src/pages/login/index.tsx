@@ -14,8 +14,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import {Link, useNavigate} from 'react-router-dom'
-import { userContext } from '@/contexts/userContext'
-import { useContext, useState } from 'react'
+import { useUserContext } from '@/contexts/userContext'
+import { useState } from 'react'
 import Loading from '@/components/custom/Loader'
 import api, {isAxiosError} from '@/services/api'
 
@@ -29,7 +29,7 @@ const formSchema = z.object({
 
 function Login() {
   const { toast } = useToast()
-  const { setUser } = useContext(userContext)
+  const { setUser } = useUserContext()
   const [loading, setLoading] = useState(false)
   const router = useNavigate()
   const form = useForm<z.infer<typeof formSchema>>({

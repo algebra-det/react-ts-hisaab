@@ -7,18 +7,18 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { userContext } from '@/contexts/userContext'
-import { useContext, useEffect } from 'react'
+import { useUserContext } from '@/contexts/userContext'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 
 function ProfileButton() {
   const router = useNavigate()
-  const { user, setUser } = useContext(userContext)
+  const { user, setUser } = useUserContext()
 
   useEffect(() => {
     const checkAndSetUser = async () => {
-      if (user.id) {
+      if (user?.id) {
         const response = await fetch(
           `${import.meta.env.NEXT_PUBLIC_API_URL}/auth/verify`,
           {
